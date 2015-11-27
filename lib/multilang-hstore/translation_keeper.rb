@@ -21,7 +21,7 @@ module Multilang
     end
 
     def to_s
-      raw_read(actual_locale)  
+      raw_read(actual_locale)
     end
 
     def to_str(locale = nil)
@@ -113,7 +113,23 @@ module Multilang
 
         def value(locale = nil)
           locale ||= actual_locale
-          read(locale)
+          v = read(locale)
+          if v.blank?
+            if fallback_locales = locale_fallbacks(locale)
+              fallback_locales.each do |fallback_locale|
+                v = read(fallback_locale)
+                if !v.blank?
+                  return v
+                end
+              end
+            end
+          end
+
+          v
+        end
+
+        def locale_fallbacks(locale)
+          I18n.fallbacks[locale]
         end
 
         def actual_locale
@@ -129,4 +145,4 @@ module Multilang
     end
 
   end
-end 
+end
